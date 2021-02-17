@@ -1,6 +1,6 @@
 package hackerrank.tests
 
-class SegmentTree(val st: Array[Int], val n: Int) {
+class SegmentTree(val st: Array[Int], val n: Int, op: (Int, Int) => Int, zero: Int) {
   // A recursive function that constructs Segment Tree for array[ss..se].
   // si is index of current node in segment tree st
   def constructSTUtil(arr: Array[Int], ss: Int, se: Int, si: Int): Int = {
@@ -12,7 +12,7 @@ class SegmentTree(val st: Array[Int], val n: Int) {
       // If there are more than one elements, then recur for left and
       // right subtrees and store the sum of values in this node
       val mid = getMid(ss, se)
-      st(si) = constructSTUtil(arr, ss, mid, si * 2 + 1) + constructSTUtil(arr, mid + 1, se, si * 2 + 2)
+      st(si) = op(constructSTUtil(arr, ss, mid, si * 2 + 1), constructSTUtil(arr, mid + 1, se, si * 2 + 2))
     }
     st(si)
   }
@@ -23,14 +23,14 @@ class SegmentTree(val st: Array[Int], val n: Int) {
 
   // Return sum of elements in range from index qs (quey start) to
   // qe (query end).  It mainly uses getSumUtil()
-  def getSum(qs: Int, qe: Int): Int =
+  def get(qs: Int, qe: Int): Int =
   {
     // Check for erroneous input values
     if (qs < 0 || qe > n - 1 || qs > qe) {
       System.out.println("Invalid Input");
       return -1;
     }
-    getSumUtil(0, n - 1, qs, qe, 0);
+    getUtil(0, n - 1, qs, qe, 0);
   }
 
   /*  A recursive function to get the sum of values in given range
@@ -42,7 +42,7 @@ class SegmentTree(val st: Array[Int], val n: Int) {
   ss & se  --> Starting and ending indexes of the segment represented
                 by current node, i.e., st[si]
   qs & qe  --> Starting and ending indexes of query range */
-  def getSumUtil(ss: Int, se: Int, qs: Int, qe: Int, si: Int): Int =
+  def getUtil(ss: Int, se: Int, qs: Int, qe: Int, si: Int): Int =
   {
     // If segment of this node is a part of given range, then return
     // the sum of the segment
@@ -50,16 +50,17 @@ class SegmentTree(val st: Array[Int], val n: Int) {
       st(si)
     }else if (se < qs || ss > qe) {
       // If segment of this node is outside the given range
-      0
+      zero
     }else {
       // If a part of this segment overlaps with the given range
       val mid = getMid(ss, se);
-      getSumUtil(ss, mid, qs, qe, 2 * si + 1) + getSumUtil(mid + 1, se, qs, qe, 2 * si + 2);
+      op(getUtil(ss, mid, qs, qe, 2 * si + 1), getUtil(mid + 1, se, qs, qe, 2 * si + 2))
     }
   }
 
   // The function to update a value in input array and segment tree.
   // It uses updateValueUtil() to update the value in segment tree
+  // TODO change to use op
   def updateValue(arr: Array[Int], n: Int, i: Int, new_val: Int): Unit = { // Check for erroneous input index
     if (i < 0 || i > n - 1) {
       System.out.println("Invalid Input")
@@ -104,22 +105,26 @@ class SegmentTree(val st: Array[Int], val n: Int) {
 
 
 object SegmentTree{
-  def apply(arr: Array[Int]): SegmentTree =  {
+  def apply(arr: Array[Int], op: (Int, Int) => Int, zero: Int): SegmentTree =  {
     //Height of segment tree
     val height = math.ceil(math.log(arr.length)/math.log(2)) ////// log N
                                                              //////    2
     //Maximum size of segment tree
     val maxSize = 2 * Math.pow(2, height).toInt - 1
     val st = Array.ofDim[Int](maxSize)
-    val tree = new SegmentTree(st, arr.length)
-    tree.constructSTUtil(arr, 0, arr.length - 1, 0)
+    val tree = new SegmentTree(st, arr.length, op, zero)
+    tree.constructSTUtil(arr, ss = 0, se = arr.length - 1, si = 0)
     tree
   }
 }
 
-object Main extends App {
+object SegmentTreeTest extends App {
   val arr = Array(1, 3, 5, 7, 9, 11)
-  val segmentTree = SegmentTree(arr)
-  println(segmentTree)
-  println(segmentTree.getSum(1, 3))
+  println(arr.mkString("Array(", ", ", ")"))
+  val sumSegmentTree = SegmentTree(arr, _ + _, 0)
+  println(sumSegmentTree)
+  println(sumSegmentTree.get(1, 3))
+  val productSegmentTree = SegmentTree(arr, _ * _, 1)
+  println(productSegmentTree)
+  println(productSegmentTree.get(1, 3))
 }
