@@ -14,12 +14,14 @@ k < 2 ** 31
 
 import java.util.*;
 
+//Improve solution performance
 public class MostOccurringNumberAfterKIncrements {
 
-    public static int solve(int[] nums, int k) {
+    public static int solve0(int[] nums, int k) {
         int start = 0;
         int maxOcc = 0;
         Arrays.sort(nums);
+
         int currM = 1;
         int minN = nums[0];
         for (int i = start; i < nums.length-1; i++) {
@@ -66,6 +68,37 @@ public class MostOccurringNumberAfterKIncrements {
                 }
             }
         }
+        return minN;
+    }
+
+    public static int solve(int[] nums, int k) {
+        if(nums.length == 0) {
+            return Integer.MIN_VALUE;
+        }
+        if (nums.length == 1){
+            return nums[0];
+        }
+        int start = 0;
+        int maxOcc = 0;
+        Arrays.sort(nums);
+        int minN = nums[0];
+        int currSum = 0;
+        int end = 1;
+        while (start <= end && end <= nums.length - 1) {
+            int len = end - start;
+            currSum += (nums[end]-nums[end-1])*len;
+            if(currSum <= k){
+                if(len > maxOcc){
+                    maxOcc = len;
+                    minN = nums[end];
+                }
+                end += 1;
+            } else {
+                currSum -= (nums[end] - nums[start]) + (nums[end]-nums[end-1])*(len - 1);
+                start += 1;
+            }
+        }
+        System.out.println("arr=" + Arrays.toString(nums) + " ,k="+k);
         return minN;
     }
 
