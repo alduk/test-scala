@@ -25,5 +25,6 @@ libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.3" withSources(),
   "org.http4s" %% "http4s-dsl" % http4sVersion withSources(),
   "org.http4s" %% "http4s-blaze-server" % http4sVersion withSources(),
-  "org.http4s" %% "http4s-blaze-client" % http4sVersion withSources()
+  "org.http4s" %% "http4s-blaze-client" % http4sVersion withSources(),
+  "org.slf4j" % "slf4j-simple" % "1.7.30" withSources()
 )

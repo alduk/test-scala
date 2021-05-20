@@ -1,5 +1,6 @@
 package link.server
 
+import cats.data.Kleisli
 import cats.effect.IOApp
 
 import java.awt.Toolkit
@@ -10,7 +11,7 @@ import scala.util.Try
 
 object LinkServer extends IOApp {
   def writeToClipBoard(s: String, owner: ClipboardOwner = null): Clipboard = {
-    val clipboard = Toolkit.getDefaultToolkit().getSystemClipboard()
+    val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
     val transferable = new StringSelection(s)
     clipboard.setContents(transferable, owner)
     clipboard
@@ -21,7 +22,7 @@ object LinkServer extends IOApp {
   def openChromeCmd(uri: String) = s"google-chrome $uri"
 
   private def validateUrl(searchText: String): Try[URI] = {
-    Try(new URL(searchText).toURI())
+    Try(new URL(searchText).toURI)
   }
 
   val httpProtocol = "http://"
@@ -47,18 +48,17 @@ object LinkServer extends IOApp {
   object ContentQueryParamMatcher extends QueryParamDecoderMatcher[String]("content")
 
 
-  val openLinkService = HttpRoutes.of[IO] {
-    case GET -> Root / "open" :? ContentQueryParamMatcher(query) => {
+  val openLinkService: Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
+    case GET -> Root / "open" :? ContentQueryParamMatcher(query) =>
       println(s"Opening $query")
       val clipboard = writeToClipBoard(query)
       val content = clipboard.getData(DataFlavor.stringFlavor).toString
       browse(content)
       Ok(s"Processed: $content.")
-    }
 
-    case GET -> Root / "health" => {
+    case GET -> Root / "health" =>
       Ok("OK")
-    }
+
   }.orNotFound
 
   def run(args: List[String]): IO[ExitCode] =
