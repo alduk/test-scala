@@ -30,7 +30,7 @@ object LinkServer extends IOApp {
   def browse(searchText: String): String = {
     import scala.sys.process._
     val uri = validateUrl(searchText).recoverWith(_ => validateUrl(s"$httpProtocol$searchText")).fold(
-      x => {
+      _ => {
         google(searchText)
       },
       u => {
@@ -50,7 +50,7 @@ object LinkServer extends IOApp {
 
   val openLinkService: Kleisli[IO, Request[IO], Response[IO]] = HttpRoutes.of[IO] {
     case GET -> Root / "open" :? ContentQueryParamMatcher(query) =>
-      println(s"Opening $query")
+      println(s"Opening $query.")
       val clipboard = writeToClipBoard(query)
       val content = clipboard.getData(DataFlavor.stringFlavor).toString
       browse(content)

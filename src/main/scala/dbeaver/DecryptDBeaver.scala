@@ -1,0 +1,5 @@
+package dbeaver
+
+class DecryptDBeaver {
+
+}
