@@ -2,6 +2,7 @@ package link.server
 
 import cats.data.Kleisli
 import cats.effect.IOApp
+import org.http4s.blaze.server.BlazeServerBuilder
 
 import java.awt.Toolkit
 import java.awt.datatransfer._
@@ -42,7 +43,6 @@ object LinkServer extends IOApp {
   }
 
   import cats.effect._, org.http4s._, org.http4s.dsl.io._, scala.concurrent.ExecutionContext.Implicits.global
-  import org.http4s.server.blaze._
   import org.http4s.implicits._
 
   object ContentQueryParamMatcher extends QueryParamDecoderMatcher[String]("content")
